@@ -193,25 +193,28 @@ func main() {
 
 		if selectedAction != "" {
 			for col, led := range ledconfig {
-				if led.state == "" && (selectedColor == "all" || selectedColor == col) {
-					// increment/decrement
-					switch selectedAction {
-					case "plus":
-						led.pinPower += 1
-						if led.pinPower > len(pwmScale)-1 {
-							led.pinPower = len(pwmScale) - 1
+				switch led.state {
+				case "", "set":
+					if selectedColor == "all" || selectedColor == col {
+						// increment/decrement
+						switch selectedAction {
+						case "plus":
+							led.pinPower += 1
+							if led.pinPower > len(pwmScale)-1 {
+								led.pinPower = len(pwmScale) - 1
+							}
+						case "minus":
+							led.pinPower -= 1
+							if led.pinPower < 0 {
+								led.pinPower = 0
+							}
 						}
-					case "minus":
-						led.pinPower -= 1
-						if led.pinPower < 0 {
-							led.pinPower = 0
-						}
-					}
-					// set pwm
-					led.generator.Set(led.channel, led.generator.Top()*pwmScale[led.pinPower]/100)
+						// set pwm
+						led.generator.Set(led.channel, led.generator.Top()*pwmScale[led.pinPower]/100)
 
+					}
+					ledconfig[col] = led
 				}
-				ledconfig[col] = led
 			}
 			selectedAction = ""
 		}
