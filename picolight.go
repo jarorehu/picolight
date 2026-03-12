@@ -45,6 +45,7 @@ type config struct {
 	pinPower  int
 	generator PWM
 	channel   uint8
+	state     string // max, sup, (""=standard -> supressed -> maximum -> "" ... )
 }
 
 var period uint64 = 1e9 / 2000
@@ -147,12 +148,27 @@ func main() {
 		for _, col := range btnColors {
 			if !btnconfig[col].Get() {
 				var btn string = buttonAction(btnconfig[col])
-				if btn != "" {
+				switch btn {
+				case "short":
 					if selectedColor == col {
 						selectedColor = "all"
 					} else {
 						selectedColor = col
 					}
+				case "long":
+					var led = ledconfig[col]
+					switch led.state {
+					case "":
+						led.state = "sup"
+						led.generator.Set(led.channel, 0)
+					case "sup":
+						led.state = "max"
+						led.generator.Set(led.channel, led.generator.Top())
+					default:
+						led.state = ""
+						led.generator.Set(led.channel, led.generator.Top()*pwmScale[led.pinPower]/100)
+					}
+					ledconfig[col] = led
 				}
 			}
 		}
