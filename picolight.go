@@ -2,6 +2,7 @@ package main
 
 import (
 	"machine"
+	"strconv"
 	"time"
 )
 
@@ -68,7 +69,7 @@ var ledconfig = map[string]config{
 	"W": config{pinPower: 1, generator: machine.PWM0, pinLed: machine.GPIO0, channel: 0},
 }
 
-var pwmScale = []uint32{100, 95, 90, 80, 70, 55, 25, 10, 5, 0} // inverzni stupnice
+var pwmScale = []uint32{100, 97, 92, 88, 80, 70, 55, 25, 10, 5, 0} // inverzni stupnice
 
 func blik(delay int, cnt int) {
 	led := machine.LED
@@ -123,6 +124,8 @@ func main() {
 
 	var selectedColor string = "all"
 	var selectedAction string = ""
+	var status string = ""
+	sysTimestamp := time.Now()
 
 	// PWM diody, nastaveni pinu a pwm generátoru
 	//var pwm PWM
@@ -149,7 +152,7 @@ func main() {
 			if !btnconfig[col].Get() {
 				var btn string = buttonAction(btnconfig[col])
 				switch btn {
-				case "short":
+				case "short", "double":
 					if selectedColor == col {
 						selectedColor = "all"
 					} else {
@@ -158,16 +161,17 @@ func main() {
 				case "long":
 					var led = ledconfig[col]
 					switch led.state {
-					case "":
+					case "std", "":
 						led.state = "sup"
 						led.generator.Set(led.channel, led.generator.Top())
 					case "sup":
 						led.state = "max"
 						led.generator.Set(led.channel, 0)
 					default:
-						led.state = ""
+						led.state = "std"
 						led.generator.Set(led.channel, led.generator.Top()*pwmScale[led.pinPower]/100)
 					}
+					println("set state of ", col, " -> ", led.state)
 					ledconfig[col] = led
 				}
 			}
@@ -185,7 +189,7 @@ func main() {
 			}
 		}
 		// debug result
-		println(time.Now().String(), selectedColor, selectedAction)
+		//println(time.Now().String(), selectedColor, selectedAction)
 
 		if selectedAction != "" {
 			for col, led := range ledconfig {
@@ -212,8 +216,18 @@ func main() {
 			selectedAction = ""
 		}
 
-		time.Sleep(200 * time.Millisecond)
-		blik(20, 1)
+		if time.Since(sysTimestamp) > 1000*time.Millisecond {
+			blik(5, 1)
+
+			status = ""
+			for col, led := range ledconfig {
+				status += col + "=" + strconv.Itoa(led.pinPower) + " (" + led.state + ") "
+			}
+			println(time.Now().String(), selectedColor, "status: "+status)
+
+			sysTimestamp = time.Now()
+		}
+		time.Sleep(10 * time.Millisecond)
 
 	}
 
