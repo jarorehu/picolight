@@ -8,7 +8,7 @@ import (
 const (
 	timeDebounce     = 10 * time.Millisecond
 	timeLongPress    = 500 * time.Millisecond
-	timeDblClickWait = 250 * time.Millisecond
+	timeDblClickWait = 150 * time.Millisecond
 )
 
 // ----------------------------------------
@@ -120,7 +120,6 @@ func buttonAction(btn machine.Pin) string {
 
 func main() {
 
-	var released bool = false
 	var selectedColor string = "all"
 	var selectedAction string = ""
 
@@ -147,23 +146,12 @@ func main() {
 		// color selection buttons
 		for _, col := range btnColors {
 			if !btnconfig[col].Get() {
-				// pressed !!
-				time.Sleep(25 * time.Millisecond)
-				if !btnconfig[col].Get() {
-					// after 25 ms still pressed
+				var btn string = buttonAction(btnconfig[col])
+				if btn != "" {
 					if selectedColor == col {
 						selectedColor = "all"
 					} else {
 						selectedColor = col
-					}
-				}
-				// wait for release
-				released = false
-				for !released {
-					released = true
-					time.Sleep(25 * time.Millisecond)
-					if !btnconfig[col].Get() {
-						released = false
 					}
 				}
 			}
@@ -172,22 +160,11 @@ func main() {
 		// change up down buttons
 		for _, act := range btnAction {
 			if !btnconfig[act].Get() {
-				// pressed !!
-				time.Sleep(25 * time.Millisecond)
-				if !btnconfig[act].Get() {
-					// after 25 ms still pressed
+				var btn string = buttonAction(btnconfig[act])
+				if btn != "" {
 					selectedAction = act
 				} else {
 					selectedAction = ""
-				}
-				// wait for release
-				released = false
-				for !released {
-					released = true
-					time.Sleep(25 * time.Millisecond)
-					if !btnconfig[act].Get() {
-						released = false
-					}
 				}
 			}
 		}

@@ -11,7 +11,7 @@ sudo dmesg
 sudo minicom -D /dev/ttyACM0
 
 pro spuštění minicom bez sudo:
-udo usermod -a -G dialout $USER
+sudo usermod -a -G dialout $USER
 
 Ctrl+A a následně Q (Quit)
 Ctrl+A, Z: Zobrazí nápovědu.
