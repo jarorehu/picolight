@@ -125,7 +125,7 @@ func main() {
 	var selectedColor string = "all"
 	var selectedAction string = ""
 	var status string = ""
-	sysTimestamp := time.Now()
+	sysLogTimestamp := time.Now()
 
 	// PWM diody, nastaveni pinu a pwm generátoru
 	//var pwm PWM
@@ -194,7 +194,7 @@ func main() {
 		if selectedAction != "" {
 			for col, led := range ledconfig {
 				switch led.state {
-				case "", "set":
+				case "", "std":
 					if selectedColor == "all" || selectedColor == col {
 						// increment/decrement
 						switch selectedAction {
@@ -219,16 +219,16 @@ func main() {
 			selectedAction = ""
 		}
 
-		if time.Since(sysTimestamp) > 1000*time.Millisecond {
+		if time.Since(sysLogTimestamp) > 1000*time.Millisecond {
 			blik(5, 1)
 
 			status = ""
-			for col, led := range ledconfig {
-				status += col + "=" + strconv.Itoa(led.pinPower) + " (" + led.state + ") "
+			for _, col := range btnColors {
+				status += col + "=" + strconv.Itoa(ledconfig[col].pinPower) + " (" + ledconfig[col].state + ") "
 			}
-			println(time.Now().String(), selectedColor, "status: "+status)
+			println(time.Now().String(), "active:"+selectedColor, "status: "+status)
 
-			sysTimestamp = time.Now()
+			sysLogTimestamp = time.Now()
 		}
 		time.Sleep(10 * time.Millisecond)
 
