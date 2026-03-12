@@ -57,6 +57,8 @@ var btnconfig = map[string]machine.Pin{
 	"plus":  machine.GPIO15,
 	"minus": machine.GPIO14,
 }
+var btnColors = [4]string{"R", "G", "B", "W"}
+var btnAction = [2]string{"plus", "minus"}
 
 var ledconfig = map[string]config{
 	"R": config{pinPower: 1, generator: machine.PWM6, pinLed: machine.GPIO12, channel: 0},
@@ -66,6 +68,21 @@ var ledconfig = map[string]config{
 }
 
 var pwmScale = []uint32{100, 95, 90, 80, 70, 55, 25, 10, 5, 0} // inverzni stupnice
+
+func blik(delay int, cnt int) {
+	led := machine.LED
+	led.Configure(machine.PinConfig{Mode: machine.PinOutput})
+	for i := 0; i < cnt; i++ {
+		led.High()
+		time.Sleep(time.Millisecond * time.Duration(delay))
+
+		led.Low()
+		if cnt == 1 {
+			break
+		}
+		time.Sleep(time.Millisecond * time.Duration(delay))
+	}
+}
 
 func buttonAction(btn machine.Pin) string {
 	action := ""
@@ -103,16 +120,9 @@ func buttonAction(btn machine.Pin) string {
 
 func main() {
 
-	var btnColors = [4]string{"R", "G", "B", "W"}
-	var btnAction = [2]string{"plus", "minus"}
 	var released bool = false
 	var selectedColor string = "all"
 	var selectedAction string = ""
-
-	// tlacitka, definice a nastaveni
-	for _, pin := range btnconfig {
-		pin.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
-	}
 
 	// PWM diody, nastaveni pinu a pwm generátoru
 	//var pwm PWM
@@ -125,8 +135,13 @@ func main() {
 		led.channel = ch
 		ledconfig[col] = led
 	}
-	//machine.PWMPeripheral(0)
+	// tlacitka, definice a nastaveni
+	for _, pin := range btnconfig {
+		pin.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
+	}
+
 	println("configured!", ledconfig)
+	blik(100, 3)
 
 	for {
 		// color selection buttons
@@ -177,7 +192,7 @@ func main() {
 			}
 		}
 		// debug result
-		println(selectedColor, selectedAction)
+		println(time.Now().String(), selectedColor, selectedAction)
 
 		if selectedAction != "" {
 			for col, led := range ledconfig {
@@ -186,8 +201,8 @@ func main() {
 					switch selectedAction {
 					case "plus":
 						led.pinPower += 1
-						if led.pinPower > len(pwmScale) {
-							led.pinPower = len(pwmScale)
+						if led.pinPower > len(pwmScale)-1 {
+							led.pinPower = len(pwmScale) - 1
 						}
 					case "minus":
 						led.pinPower -= 1
@@ -199,11 +214,13 @@ func main() {
 					led.generator.Set(led.channel, led.generator.Top()*pwmScale[led.pinPower]/100)
 
 				}
+				ledconfig[col] = led
 			}
 			selectedAction = ""
 		}
 
 		time.Sleep(200 * time.Millisecond)
+		blik(20, 1)
 
 	}
 
