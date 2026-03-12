@@ -69,7 +69,8 @@ var ledconfig = map[string]config{
 	"W": config{pinPower: 1, generator: machine.PWM0, pinLed: machine.GPIO0, channel: 0},
 }
 
-var pwmScale = []uint32{100, 97, 92, 88, 80, 70, 55, 25, 10, 5, 0} // inverzni stupnice
+// var pwmScale = []uint32{100, 97, 92, 88, 80, 70, 55, 25, 10, 5, 0} // inverzni stupnice
+var pwmScale = []uint32{100, 98, 97, 95, 92, 87, 79, 66, 45, 11, 0} // inverzni stupnice
 
 func blik(delay int, cnt int) {
 	led := machine.LED
