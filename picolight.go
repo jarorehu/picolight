@@ -227,7 +227,7 @@ func main() {
 			for _, col := range btnColors {
 				status += col + "=" + strconv.Itoa(ledconfig[col].pinPower) + " (" + ledconfig[col].state + ") "
 			}
-			println(time.Now().String(), "active:"+selectedColor, "status: "+status)
+			println(time.Now().Format("15:04:05"), "active:"+selectedColor, "status: "+status)
 
 			sysLogTimestamp = time.Now()
 		}
