@@ -42,7 +42,7 @@ func getPWM(pin machine.Pin) (PWM, uint8, error) {
 
 type config struct {
 	pinLed    machine.Pin
-	percent   uint32
+	pinPower  int
 	generator PWM
 	channel   uint8
 }
@@ -50,20 +50,22 @@ type config struct {
 var period uint64 = 1e9 / 2000
 
 var btnconfig = map[string]machine.Pin{
-	"R":     machine.GP1,
-	"G":     machine.GP3,
-	"B":     machine.GP5,
-	"W":     machine.GP7,
-	"plus":  machine.GP14,
-	"minus": machine.GP15,
+	"R":     machine.GPIO11,
+	"G":     machine.GPIO10,
+	"B":     machine.GPIO3,
+	"W":     machine.GPIO2,
+	"plus":  machine.GPIO15,
+	"minus": machine.GPIO14,
 }
 
 var ledconfig = map[string]config{
-	"R": config{percent: 50, generator: machine.PWM0, pinLed: machine.GPIO0, channel: 0},
-	"G": config{percent: 50, generator: machine.PWM1, pinLed: machine.GPIO2, channel: 0},
-	"B": config{percent: 50, generator: machine.PWM2, pinLed: machine.GPIO4, channel: 0},
-	"W": config{percent: 50, generator: machine.PWM3, pinLed: machine.GPIO6, channel: 0},
+	"R": config{pinPower: 1, generator: machine.PWM6, pinLed: machine.GPIO12, channel: 0},
+	"G": config{pinPower: 1, generator: machine.PWM4, pinLed: machine.GPIO8, channel: 0},
+	"B": config{pinPower: 1, generator: machine.PWM2, pinLed: machine.GPIO4, channel: 0},
+	"W": config{pinPower: 1, generator: machine.PWM0, pinLed: machine.GPIO0, channel: 0},
 }
+
+var pwmScale = []uint32{100, 95, 90, 80, 70, 55, 25, 10, 5, 0} // inverzni stupnice
 
 func buttonAction(btn machine.Pin) string {
 	action := ""
@@ -117,10 +119,9 @@ func main() {
 	var ch uint8
 	for col, led := range ledconfig {
 		led.pinLed.Configure(machine.PinConfig{Mode: machine.PinPWM})
-		//pwm, ch, _ = getPWM(led.pinLed)
-		//led.generator = pwm
 		led.generator.Configure(machine.PWMConfig{Period: period})
 		ch, _ = led.generator.Channel(led.pinLed)
+		led.generator.Set(ch, led.generator.Top()*pwmScale[led.pinPower]/100)
 		led.channel = ch
 		ledconfig[col] = led
 	}
@@ -184,18 +185,18 @@ func main() {
 					// increment/decrement
 					switch selectedAction {
 					case "plus":
-						led.percent += 10
-						if led.percent > 100 {
-							led.percent = 100
+						led.pinPower += 1
+						if led.pinPower > len(pwmScale) {
+							led.pinPower = len(pwmScale)
 						}
 					case "minus":
-						led.percent -= 10
-						if led.percent < 0 {
-							led.percent = 0
+						led.pinPower -= 1
+						if led.pinPower < 0 {
+							led.pinPower = 0
 						}
 					}
 					// set pwm
-					led.generator.Set(led.channel, led.generator.Top()*led.percent/100)
+					led.generator.Set(led.channel, led.generator.Top()*pwmScale[led.pinPower]/100)
 
 				}
 			}
