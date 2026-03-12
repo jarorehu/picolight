@@ -160,10 +160,10 @@ func main() {
 					switch led.state {
 					case "":
 						led.state = "sup"
-						led.generator.Set(led.channel, 0)
+						led.generator.Set(led.channel, led.generator.Top())
 					case "sup":
 						led.state = "max"
-						led.generator.Set(led.channel, led.generator.Top())
+						led.generator.Set(led.channel, 0)
 					default:
 						led.state = ""
 						led.generator.Set(led.channel, led.generator.Top()*pwmScale[led.pinPower]/100)
@@ -189,7 +189,7 @@ func main() {
 
 		if selectedAction != "" {
 			for col, led := range ledconfig {
-				if selectedColor == "all" || selectedColor == col {
+				if led.state == "" && (selectedColor == "all" || selectedColor == col) {
 					// increment/decrement
 					switch selectedAction {
 					case "plus":
