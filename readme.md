@@ -2,7 +2,9 @@
 https://www.root.cz/clanky/vyuziti-tinygo-pri-programovani-raspberry-pi-pico-od-gpio-az-k-pwm/#k05
 
 ## build
+```
 tinygo build -o output.uf2 -target=pico soubor.go
+```
 
 ## Popis
 Použito je Raspberry PI pico, součástky jsou rozmístěné na dev desce a pospojované podle pozice po obou stranách desky. Součástky jsou rozmístěné tak, aby tlačítka a informativní LED byly na jedné straně a zbytek součástek na straně druhé. Napájení z 12V zdroje, pomocí LM7805 je odvozeno 5V pro napájení pico. 12V používá externí rampa s LED a informativní LED na desce.
@@ -22,14 +24,18 @@ Aplikace je napsaná v Tinygo
 
 ## minicom
 ### výstup na minicom
+```
 sudo dmesg
 sudo minicom -D /dev/ttyACM0
+```
 
-### pro spuštění minicom bez sudo:
+### pro spuštění minicom bez sudo
+```
 sudo usermod -a -G dialout $USER
+```
 
 ### minicom v terminálu
-Ctrl+A a následně Q (Quit)
-Ctrl+A, Z: Zobrazí nápovědu.
-Ctrl+S: Pozastaví výstup.
+- Ctrl+A a následně Q (Quit)
+- Ctrl+A, Z: Zobrazí nápovědu.
+- Ctrl+S: Pozastaví výstup.
 
