@@ -20,6 +20,10 @@ Použito je Raspberry PI pico, součástky jsou rozmístěné na dev desce a pos
 
 Pico řídí 4 kanály - R/G/B/W v několika stupních. Tlačítka +/- jsou společná, dalšími čtyřmi se volí jednotlivé barvy (short press), nebo přepíná režim (long press)
 
+Schéma (viz soubory pro KiCAD):
+![schematic](https://github.com/jarorehu/picolight/edit/main/picolight-schematic.png)
+
+
 Aplikace je napsaná v Tinygo
 
 ## minicom
